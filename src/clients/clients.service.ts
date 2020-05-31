@@ -1,15 +1,14 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Client } from './client.models';
 import { v1 as uuidv1 } from 'uuid';
-import * as fs from 'fs';
-import * as path from 'path';
+import { ClientDataManagement } from './clients.data-management';
 @Injectable()
 export class ClientsService {
-    private logger = new Logger('ClientsService');
-
+    private clientDataManagement = new ClientDataManagement();
+    
     getAllClients(queryParams): Client[] {
         const { page } = queryParams;
-        const clientData = this.loadClientData();
+        const clientData = this.clientDataManagement.getClients();
 
         if (!page)
             return clientData;
@@ -25,34 +24,8 @@ export class ClientsService {
         client.id = uuidv1();
 
 
-        this.addClientData(client);
+        this.clientDataManagement.addClient(client);
 
         return client;
-    }
-
-    addClientData = (client) => {
-        const clientData = this.loadClientData();
-        clientData.push(client);
-
-        this.saveClientData(clientData);
-
-    }
-
-    saveClientData = (client) => {
-        const jsonString = JSON.stringify(client);
-        fs.writeFileSync(path.join(__dirname + '../../../src/clients/data/clients.json'), jsonString);
-    }
-
-    loadClientData = () => {
-        try {
-            const existingClients = fs.readFileSync(path.join(__dirname + '../../../src/clients/data/clients.json'));
-            const dataJson = existingClients.toString();
-
-            return JSON.parse(dataJson);
-        } catch (e) {
-            this.logger.error('No clients yet. Returning empty array.');
-            return [];
-        }
-
     }
 }
