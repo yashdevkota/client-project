@@ -7,8 +7,17 @@ import * as path from 'path';
 export class ClientsService {
     private logger = new Logger('ClientsService');
 
-    getAllClients(): Client[] {
-        return this.loadClientData();
+    getAllClients(queryParams): Client[] {
+        const { page } = queryParams;
+        const clientData = this.loadClientData();
+
+        if (!page)
+            return clientData;
+
+        const sliceFirstParameter = ((page - 1) * 5);
+        const sliceSecondParameter = (page * 5);
+
+        return clientData.slice(sliceFirstParameter, sliceSecondParameter);
     }
 
     createClient(clientData): Client {
@@ -34,7 +43,7 @@ export class ClientsService {
         fs.writeFileSync(path.join(__dirname + '../../../src/clients/data/clients.json'), jsonString);
     }
 
-    loadClientData= () => {
+    loadClientData = () => {
         try {
             const existingClients = fs.readFileSync(path.join(__dirname + '../../../src/clients/data/clients.json'));
             const dataJson = existingClients.toString();

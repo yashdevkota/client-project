@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, UsePipes, ValidationPipe, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Body, UsePipes, ValidationPipe, Logger, Query } from '@nestjs/common';
 import { ClientsService } from './clients.service';
 import { Client } from './client.models';
 import { CreateClientDto } from './dto/create-client.dto';
+import { GetClientQuery } from './dto/get-client-query.dto';
 
 @Controller('clients')
 export class ClientsController {
@@ -10,9 +11,9 @@ export class ClientsController {
     constructor(private clientService: ClientsService) { }
 
     @Get()
-    getAllClients(): Client[] {
+    getAllClients(@Query(ValidationPipe) queryParams : GetClientQuery): Client[] {
         this.logger.verbose('Getting tasks.');
-        return this.clientService.getAllClients();
+        return this.clientService.getAllClients(queryParams);
     }
 
     @Post()
